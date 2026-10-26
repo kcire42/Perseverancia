@@ -170,15 +170,11 @@ export async function cargarRoverNASA(rover) {
   rover.clear();
   rover.add(modelo);
 
-  // Puntos invisibles donde están las 6 ruedas (el modelo trae las ruedas en una sola pieza)
   const t = new THREE.Box3().setFromObject(modelo).getSize(new THREE.Vector3());
-  const ruedas = [];
-  for (const lado of [-1, 1]) for (const z of [0.38, 0, -0.38]) {
-    const p = new THREE.Object3D();
-    p.position.set(lado * (t.x / 2 - 0.25), 0.26, z * t.z);
-    rover.add(p);
-    ruedas.push(p);
-  }
+
+  // Las 6 ruedas vienen en UNA sola pieza: la separamos para que cada una pueda girar
+  const piezaRuedas = modelo.getObjectByName('Wheels_objs');
+  const ruedas = separarRuedas(piezaRuedas, rover);
 
   // Piezas que son cámaras (por su nombre)
   const camaras = [];
@@ -187,5 +183,101 @@ export async function cargarRoverNASA(rover) {
     if (/cam|lens|watson/i.test(o.name) && !/cover|bracket|wiring|^\d/i.test(o.name)) camaras.push(o);
   });
 
-  return { ruedas, camaras, medidas: t };
+  return { ruedas, camaras, medidas: t, modelo };
+}
+
+// ---------- Separar la pieza de ruedas en 6 ruedas independientes ----------
+// Cada rueda queda así:  pivote (gira a izquierda/derecha = dirección)
+//                         └─ giro (rueda hacia adelante = eje X)
+//                             └─ malla de la rueda (centrada en su eje)
+function separarRuedas(pieza, rover) {
+  // La pieza puede ser una malla o un grupo de mallas (una por material: llanta, tacos, etc.)
+  const mallas = [];
+  pieza.updateMatrixWorld(true);
+  pieza.traverse((o) => { if (o.isMesh) mallas.push(o); });
+  const enPieza = new THREE.Matrix4().copy(pieza.matrixWorld).invert();
+  const partes = mallas.map((m) => {
+    const g = m.geometry.index ? m.geometry.toNonIndexed() : m.geometry.clone();
+    g.applyMatrix4(new THREE.Matrix4().multiplyMatrices(enPieza, m.matrixWorld)); // todo en coordenadas de la pieza
+    return { g, material: m.material };
+  });
+
+  // 1) Centros iniciales: 3 por lado (delante, medio, atrás). Luego se ajustan con k-medias
+  const caja = new THREE.Box3();
+  for (const { g } of partes) { g.computeBoundingBox(); caja.union(g.boundingBox); }
+  const { min, max } = caja;
+  const centros = [];
+  for (const x of [min.x + 0.2, max.x - 0.2]) for (const f of [0.15, 0.5, 0.85]) {
+    centros.push(new THREE.Vector3(x, (min.y + max.y) / 2, min.z + f * (max.z - min.z)));
+  }
+  const centroTri = (pos, i, v) => v.set(
+    (pos.getX(3 * i) + pos.getX(3 * i + 1) + pos.getX(3 * i + 2)) / 3,
+    (pos.getY(3 * i) + pos.getY(3 * i + 1) + pos.getY(3 * i + 2)) / 3,
+    (pos.getZ(3 * i) + pos.getZ(3 * i + 1) + pos.getZ(3 * i + 2)) / 3);
+  const v = new THREE.Vector3();
+  for (const p of partes) p.grupo = new Uint8Array(p.g.attributes.position.count / 3);
+  for (let vuelta = 0; vuelta < 6; vuelta++) {
+    const suma = centros.map(() => [new THREE.Vector3(), 0]);
+    for (const p of partes) {
+      const pos = p.g.attributes.position;
+      for (let i = 0; i < p.grupo.length; i++) {
+        centroTri(pos, i, v);
+        let mejor = 0;
+        for (let k = 1; k < 6; k++) if (v.distanceToSquared(centros[k]) < v.distanceToSquared(centros[mejor])) mejor = k;
+        p.grupo[i] = mejor; suma[mejor][0].add(v); suma[mejor][1]++;
+      }
+    }
+    suma.forEach(([s, n], k) => { if (n) centros[k].copy(s).divideScalar(n); });
+  }
+
+  // 2) Cada rueda: sus triángulos de cada malla, centrados en su propio eje
+  const recortar = (g, grupo, k) => {
+    const nueva = new THREE.BufferGeometry();
+    const tris = [];
+    for (let i = 0; i < grupo.length; i++) if (grupo[i] === k) tris.push(i);
+    for (const [nombre, attr] of Object.entries(g.attributes)) {
+      const n = attr.itemSize * 3, datos = new attr.array.constructor(tris.length * n);
+      tris.forEach((i, j) => datos.set(attr.array.subarray(i * n, i * n + n), j * n));
+      nueva.setAttribute(nombre, new THREE.BufferAttribute(datos, attr.itemSize, attr.normalized));
+    }
+    return nueva;
+  };
+  const padre = pieza.parent;
+  const ruedas = [];
+  for (let k = 0; k < 6; k++) {
+    const trozos = partes.map((p) => ({ g: recortar(p.g, p.grupo, k), material: p.material }))
+      .filter((t) => t.g.attributes.position.count > 0);
+    const cajaRueda = new THREE.Box3();
+    for (const t of trozos) { t.g.computeBoundingBox(); cajaRueda.union(t.g.boundingBox); }
+    const centro = cajaRueda.getCenter(new THREE.Vector3());
+    const tam = cajaRueda.getSize(new THREE.Vector3());
+
+    const giro = new THREE.Group();
+    for (const t of trozos) {
+      t.g.translate(-centro.x, -centro.y, -centro.z);
+      const malla = new THREE.Mesh(t.g, t.material);
+      malla.castShadow = malla.receiveShadow = true;
+      giro.add(malla);
+    }
+    const pivote = new THREE.Group();
+    pivote.position.copy(centro).applyMatrix4(pieza.matrix); // misma posición que tenía dentro del modelo
+    pivote.quaternion.copy(pieza.quaternion);
+    pivote.scale.copy(pieza.scale);
+    pivote.add(giro);
+    padre.add(pivote);
+    ruedas.push({ pivote, giro, radio: Math.max(tam.y, tam.z) / 2 });
+  }
+  padre.remove(pieza);
+
+  // 3) Posición de cada rueda en coordenadas del rover (para la física)
+  rover.updateMatrixWorld(true);
+  const zs = [];
+  for (const r of ruedas) {
+    r.local = rover.worldToLocal(r.pivote.getWorldPosition(new THREE.Vector3()));
+    zs.push(r.local.z);
+  }
+  // Las del medio NO giran a los lados (como el Perseverance real): solo las 4 de las esquinas
+  const zMin = Math.min(...zs), zMax = Math.max(...zs);
+  for (const r of ruedas) r.orientable = Math.abs(r.local.z - zMin) < 0.3 || Math.abs(r.local.z - zMax) < 0.3;
+  return ruedas;
 }

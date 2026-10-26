@@ -1,0 +1,143 @@
+{
+ "MCZ_LEFT": [
+  {
+   "id": "ZL0_2019_0846180221_818EBY_N0920000ZCAM10051_0630LMJ",
+   "sol": 2019,
+   "utc": "2026-10-25T06:29:06.059",
+   "url": "https://mars.nasa.gov/mars2020-raw-images/pub/ods/surface/sol/02019/ids/edr/browse/zcam/ZL0_2019_0846180221_818EBY_N0920000ZCAM10051_0630LMJ01_1200.jpg",
+   "que": "Rocas grandes junto a las huellas de Percy"
+  },
+  {
+   "id": "ZL0_2019_0846179600_598EBY_N0920000ZCAM10050_1100LMJ",
+   "sol": 2019,
+   "utc": "2026-10-25T06:18:44.055",
+   "url": "https://mars.nasa.gov/mars2020-raw-images/pub/ods/surface/sol/02019/ids/edr/browse/zcam/ZL0_2019_0846179600_598EBY_N0920000ZCAM10050_1100LMJ01_1200.jpg",
+   "que": "Una ladera llena de rocas bajo el cielo"
+  },
+  {
+   "id": "ZL0_2019_0846180072_818EBY_N0920000ZCAM10051_0630LMJ",
+   "sol": 2019,
+   "utc": "2026-10-25T06:26:37.060",
+   "url": "https://mars.nasa.gov/mars2020-raw-images/pub/ods/surface/sol/02019/ids/edr/browse/zcam/ZL0_2019_0846180072_818EBY_N0920000ZCAM10051_0630LMJ01_1200.jpg",
+   "que": "Rocas en fila sobre el horizonte"
+  },
+  {
+   "id": "ZL0_2019_0846180234_818EBY_N0920000ZCAM10051_0630LMJ",
+   "sol": 2019,
+   "utc": "2026-10-25T06:29:19.060",
+   "url": "https://mars.nasa.gov/mars2020-raw-images/pub/ods/surface/sol/02019/ids/edr/browse/zcam/ZL0_2019_0846180234_818EBY_N0920000ZCAM10051_0630LMJ01_1200.jpg",
+   "que": "Una roca como pirámide en el suelo"
+  },
+  {
+   "id": "ZL0_2016_0845904850_613EBY_N0920000ZCAM04493_1100LMJ",
+   "sol": 2016,
+   "utc": "2026-10-22T01:59:40.872",
+   "url": "https://mars.nasa.gov/mars2020-raw-images/pub/ods/surface/sol/02016/ids/edr/browse/zcam/ZL0_2016_0845904850_613EBY_N0920000ZCAM04493_1100LMJ01_1200.jpg",
+   "que": "Roca antigua y agrietada de cerca"
+  }
+ ],
+ "NAVCAM_LEFT": [
+  {
+   "id": "NLF_2009_0845300490_318ECM_N0920000NCAM03009_01_195J",
+   "sol": 2009,
+   "utc": "2026-10-15T02:06:37.092",
+   "url": "https://mars.nasa.gov/mars2020-raw-images/pub/ods/surface/sol/02009/ids/edr/browse/ncam/NLF_2009_0845300490_318ECM_N0920000NCAM03009_01_195J01_1200.jpg",
+   "que": "Colinas del borde del cráter Jezero"
+  },
+  {
+   "id": "NLF_2010_0845369681_035EBY_N0920000SCAM02010_00_0LLJ",
+   "sol": 2010,
+   "utc": "2026-10-15T21:19:47.755",
+   "url": "https://mars.nasa.gov/mars2020-raw-images/pub/ods/surface/sol/02010/ids/edr/browse/ncam/NLF_2010_0845369681_035EBY_N0920000SCAM02010_00_0LLJ01_1200.jpg",
+   "que": "Rocas claras de cerca"
+  },
+  {
+   "id": "NLF_2011_0845478216_410ECM_N0920000NCAM00347_01_195J",
+   "sol": 2011,
+   "utc": "2026-10-17T03:28:44.295",
+   "url": "https://mars.nasa.gov/mars2020-raw-images/pub/ods/surface/sol/02011/ids/edr/browse/ncam/NLF_2011_0845478216_410ECM_N0920000NCAM00347_01_195J01_1200.jpg",
+   "que": "El brazo robótico estirado sobre el suelo"
+  },
+  {
+   "id": "NLF_2011_0845478854_034ECM_N0920000NCAM00709_04_095J",
+   "sol": 2011,
+   "utc": "2026-10-17T03:39:21.688",
+   "url": "https://mars.nasa.gov/mars2020-raw-images/pub/ods/surface/sol/02011/ids/edr/browse/ncam/NLF_2011_0845478854_034ECM_N0920000NCAM00709_04_095J01_1200.jpg",
+   "que": "La sombra del brazo sobre una roca"
+  },
+  {
+   "id": "NLF_2009_0845300490_318ECM_N0920000NCAM03009_04_195J",
+   "sol": 2009,
+   "utc": "2026-10-15T02:06:37.092",
+   "url": "https://mars.nasa.gov/mars2020-raw-images/pub/ods/surface/sol/02009/ids/edr/browse/ncam/NLF_2009_0845300490_318ECM_N0920000NCAM03009_04_195J01_1200.jpg",
+   "que": "Una montaña a lo lejos y rocas en el camino"
+  }
+ ],
+ "FRONT_HAZCAM_LEFT_A": [
+  {
+   "id": "FLF_2009_0845299844_176ECM_N0920000FHAZ02008_04_095J",
+   "sol": 2009,
+   "utc": "2026-10-15T01:55:50.597",
+   "url": "https://mars.nasa.gov/mars2020-raw-images/pub/ods/surface/sol/02009/ids/edr/browse/fcam/FLF_2009_0845299844_176ECM_N0920000FHAZ02008_04_095J01_1200.jpg",
+   "que": "El camino por delante, con colinas al fondo"
+  },
+  {
+   "id": "FLF_2011_0845475569_724ECM_N0920000FHAZ00203_07_195J",
+   "sol": 2011,
+   "utc": "2026-10-17T02:44:37.629",
+   "url": "https://mars.nasa.gov/mars2020-raw-images/pub/ods/surface/sol/02011/ids/edr/browse/fcam/FLF_2011_0845475569_724ECM_N0920000FHAZ00203_07_195J01_1200.jpg",
+   "que": "La torreta del brazo con el horizonte detrás"
+  },
+  {
+   "id": "FLF_2011_0845476080_863ECM_N0920000FHAZ00215_04_075J",
+   "sol": 2011,
+   "utc": "2026-10-17T02:53:08.730",
+   "url": "https://mars.nasa.gov/mars2020-raw-images/pub/ods/surface/sol/02011/ids/edr/browse/fcam/FLF_2011_0845476080_863ECM_N0920000FHAZ00215_04_075J01_1200.jpg",
+   "que": "El brazo trabajando sobre una roca"
+  },
+  {
+   "id": "FLF_2009_0845299844_176ECM_N0920000FHAZ02008_03_095J",
+   "sol": 2009,
+   "utc": "2026-10-15T01:55:50.597",
+   "url": "https://mars.nasa.gov/mars2020-raw-images/pub/ods/surface/sol/02009/ids/edr/browse/fcam/FLF_2009_0845299844_176ECM_N0920000FHAZ02008_03_095J01_1200.jpg",
+   "que": "Una roca grande y la sombra de Percy"
+  },
+  {
+   "id": "FLF_2011_0845478959_112ECM_N0920000FHAZ02008_04_095J",
+   "sol": 2011,
+   "utc": "2026-10-17T03:41:06.665",
+   "url": "https://mars.nasa.gov/mars2020-raw-images/pub/ods/surface/sol/02011/ids/edr/browse/fcam/FLF_2011_0845478959_112ECM_N0920000FHAZ02008_04_095J01_1200.jpg",
+   "que": "Colinas y la sombra del brazo"
+  }
+ ],
+ "SHERLOC_WATSON": [
+  {
+   "id": "SIF_2014_0845733776_464EBY_N0920000SRLC00648_0000LMJ",
+   "sol": 2014,
+   "utc": "2026-10-20T02:28:25.518",
+   "url": "https://mars.nasa.gov/mars2020-raw-images/pub/ods/surface/sol/02014/ids/edr/browse/shrlc/SIF_2014_0845733776_464EBY_N0920000SRLC00648_0000LMJ01_1200.jpg",
+   "que": "Roca raspada: se ven minerales de colores"
+  },
+  {
+   "id": "SIF_2014_0845734757_847EBY_N0920000SRLC00642_0000LMJ",
+   "sol": 2014,
+   "utc": "2026-10-20T02:44:51.526",
+   "url": "https://mars.nasa.gov/mars2020-raw-images/pub/ods/surface/sol/02014/ids/edr/browse/shrlc/SIF_2014_0845734757_847EBY_N0920000SRLC00642_0000LMJ01_1200.jpg",
+   "que": "Textura de una roca, como si fuera arcilla"
+  },
+  {
+   "id": "SIF_2014_0845735077_503EBY_N0920000SRLC00741_0000LMJ",
+   "sol": 2014,
+   "utc": "2026-10-20T02:50:11.524",
+   "url": "https://mars.nasa.gov/mars2020-raw-images/pub/ods/surface/sol/02014/ids/edr/browse/shrlc/SIF_2014_0845735077_503EBY_N0920000SRLC00741_0000LMJ01_1200.jpg",
+   "que": "Granitos de roca muy de cerca"
+  },
+  {
+   "id": "SIF_2014_0845734239_367EBY_N0920000SRLC02500_0000LMJ",
+   "sol": 2014,
+   "utc": "2026-10-20T02:35:51.516",
+   "url": "https://mars.nasa.gov/mars2020-raw-images/pub/ods/surface/sol/02014/ids/edr/browse/shrlc/SIF_2014_0845734239_367EBY_N0920000SRLC02500_0000LMJ01_1200.jpg",
+   "que": "Superficie de roca rojiza"
+  }
+ ]
+}

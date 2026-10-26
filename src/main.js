@@ -6,6 +6,8 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { crearRover, cargarRoverNASA } from './rover.js';
 import { actualizarTelemetria } from './telemetria.js';
+import './mision.js';
+import { crearCamarasFoto, animarCamarasFoto, conectarMouse } from './fotos.js'; // fotos reales de Marte // control de misión con datos reales de la NASA (tecla T)
 
 // ---------- 1. Renderizador ----------
 const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -188,7 +190,8 @@ scene.add(luzLunas);
 // ---------- 8b. Rover Perseverance (ver src/rover.js) ----------
 const creado = crearRover(); // rover de figuras: se ve mientras carga el modelo de la NASA
 const rover = creado.rover;
-let ruedas = creado.ruedas;
+let ruedas = creado.ruedas;   // puntos de las ruedas (para el polvo y las huellas)
+let ruedasNASA = [];         // ruedas del modelo de la NASA, con dirección y giro
 rover.rotation.order = 'YXZ'; // primero giro (Y), luego inclinación (X) y ladeo (Z)
 rover.position.set(0, altura(0, 0), 0);
 rover.rotation.y = 0.5; // ligeramente girado hacia la cámara
@@ -202,11 +205,14 @@ camera.position.set(-5.5, hRover + 2.6, 7);
 let camarasRover = []; // piezas que son cámaras: las usaremos al final
 cargarRoverNASA(rover)
   .then((r) => {
-    ruedas = r.ruedas;
+    ruedasNASA = r.ruedas;
+    ruedas = r.ruedas.map((w) => w.pivote);
+    window.ruedasRover = ruedasNASA; // para que npm run check revise la física de las ruedas
     camarasRover = r.camaras;
     window.camarasRover = camarasRover; // para explorarlas desde la consola del navegador
     console.log(`🚙 Rover NASA cargado: ${r.medidas.x.toFixed(2)} × ${r.medidas.y.toFixed(2)} × ${r.medidas.z.toFixed(2)} m (ancho × alto × largo)`);
     console.log('📷 Piezas que son cámaras:', camarasRover.map((c) => c.name));
+    crearCamarasFoto({ rover, modelo: r.modelo }); // puntos que brillan: clic = foto real
   })
   .catch((e) => console.error('No se pudo cargar el modelo de la NASA:', e));
 
@@ -269,8 +275,8 @@ function conducir(dt) {
   rover.rotation.x = THREE.MathUtils.lerp(rover.rotation.x, Math.atan2(hB - hF, 2.8), 0.15); // cabeceo
   rover.rotation.z = THREE.MathUtils.lerp(rover.rotation.z, Math.atan2(hR - hL, 2.4), 0.15); // ladeo
 
-  // Girar las ruedas según la distancia recorrida (ángulo = distancia / radio)
-  for (const r of ruedas) r.rotation.x += (velocidad * dt) / RADIO_RUEDA;
+  // Ruedas con física real (ver moverRuedas)
+  moverRuedas(dt, velocidad, (giro * GIRO * (adelante < 0 ? -1 : 1)));
 
   // La cámara orbital acompaña al rover (se mueve lo mismo que él)
   const delta = rover.position.clone().sub(antes);
@@ -281,6 +287,36 @@ function conducir(dt) {
   sol.position.copy(rover.position).add(sombraOffset);
   sol.target.position.copy(rover.position);
 }
+
+// ---------- 10b. Física de las ruedas ----------
+// El rover avanza a velocidad v y gira a velocidad angular w. Cada rueda, según dónde está,
+// se mueve a  v_rueda = v·(adelante) + w × (posición de la rueda)
+//  - DIRECCIÓN: la rueda apunta hacia donde se mueve (solo las 4 de las esquinas, como el real)
+//  - GIRO: rueda tanto como avanza:  ángulo = distancia / radio
+function moverRuedas(dt, v, w) {
+  if (!ruedasNASA.length) { // rover de figuras (mientras carga): giro simple
+    for (const r of ruedas) r.rotation.x += (v * dt) / RADIO_RUEDA;
+    return;
+  }
+  for (const r of ruedasNASA) {
+    const { x, z } = r.local;
+    const vx = w * z, vz = v - w * x;               // velocidad de esta rueda (coordenadas del rover)
+    const rapidez = Math.hypot(vx, vz);
+    if (r.orientable && rapidez > 0.05) {
+      let angulo = Math.atan2(vx, vz);
+      if (angulo > Math.PI / 2) angulo -= Math.PI;  // en reversa la rueda no da media vuelta:
+      if (angulo < -Math.PI / 2) angulo += Math.PI; // apunta igual y rueda hacia atrás
+      r.pivote.rotation.y = THREE.MathUtils.lerp(r.pivote.rotation.y, angulo, 1 - Math.exp(-dt * 8));
+    }
+    // Lo que avanza la rueda en la dirección en que apunta
+    const a = r.pivote.rotation.y;
+    const avance = vx * Math.sin(a) + vz * Math.cos(a);
+    r.giro.rotation.x += (avance * dt) / r.radio;
+  }
+}
+
+conectarMouse(renderer.domElement, camera);
+window.percy = { camera, controls, rover }; // para que npm run check pueda mirar desde un buen ángulo
 
 // ---------- 11. Polvo que levantan las ruedas ----------
 // Un "estanque" de partículas que se reciclan: nacen en las ruedas, suben, crecen y se desvanecen
@@ -411,6 +447,7 @@ renderer.setAnimationLoop(() => {
   });
   polvo.position.x = (t * 1.5) % 40;      // el viento arrastra el polvo
   fobos.rotation.y = t * 0.05;
+  animarCamarasFoto(t);
   deimos.rotation.y = -t * 0.03;
   if (controls.enabled) controls.update();
   renderer.render(scene, camera);

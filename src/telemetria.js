@@ -2,6 +2,8 @@
 // Panel de telemetría (HTML encima del canvas 3D)
 // =============================================================
 
+import { solDeFecha } from './mision.js';
+
 const estilo = document.createElement('style');
 estilo.textContent = `
   #telemetria {
@@ -16,7 +18,7 @@ estilo.textContent = `
   #telemetria .fila { display: flex; justify-content: space-between; gap: 16px; }
   #telemetria .valor { color: #fff; }
   #ayuda {
-    position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%);
+    position: fixed; bottom: 16px; left: 16px; max-width: calc(100vw - 380px);
     padding: 6px 14px; border-radius: 8px; background: rgba(20, 10, 6, 0.5);
     color: #ffe2c8; font: 12px ui-monospace, Menlo, monospace; pointer-events: none;
   }
@@ -29,7 +31,7 @@ document.body.appendChild(panel);
 
 const ayuda = document.createElement('div');
 ayuda.id = 'ayuda';
-ayuda.textContent = 'W A S D / flechas: conducir · C: cambiar cámara · mouse: girar la vista';
+ayuda.textContent = 'W A S D / flechas: conducir · C: cambiar cámara · T: control de misión · clic en los puntos que brillan: fotos reales';
 document.body.appendChild(ayuda);
 
 // Filas del panel: [etiqueta, id]
@@ -62,5 +64,5 @@ export function actualizarTelemetria(dt, d) {
   celda.cam.textContent = d.camara;
   // Temperatura de atardecer en Jezero, con una pequeña variación
   celda.temp.textContent = (-48 + Math.sin(d.t * 0.05) * 3).toFixed(1) + ' °C';
-  celda.sol.textContent = 'Sol ' + (1312 + Math.floor(d.t / 60));
+  celda.sol.textContent = 'Sol ' + Math.floor(solDeFecha(Date.now())); // sol real de la misión
 }

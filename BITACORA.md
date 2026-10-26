@@ -71,3 +71,40 @@ Formato de cada entrada:
   - La lista de cámaras traía tapas y soportes; se filtraron por nombre.
 - **Rondas de `npm run check`:** (1) todo funcionaba, pero las huellas parecían baldosas; (2) huellas más finas y continuas ✅ 0 errores.
 - **Aprendizaje:** antes de reescalar un modelo, conviene comparar una medida conocida (como el diámetro de la rueda) con la realidad.
+
+## Paso 7 · 2026-10-25 — Entender Open MCT (control de misión de la NASA)
+- **Prompt:** "Clona nasa/openmct, usa dos subagentes en paralelo (arquitectura y viaje de un dato de telemetría) y hazme un artefacto en español simple con un mapa-del-repo y cómo conectar Percy."
+- **Cambios:** se clonó en una carpeta temporal, fuera del proyecto, y no se instaló nada. Se publicó la guía en https://claude.ai/artifact/MnQyHTSukmJre5nQDT9Qyr.
+- **Verificación:** se revisaron 3 archivo:línea al azar y otros 19 del diagrama; todos coincidieron.
+- **Aprendizaje:** Open MCT es un núcleo con APIs más plugins. Un dato viaja así: proveedor → `telemetry.subscribe` → `PlotSeries.add` → `MctChart.draw` → `gl.drawArrays`. Para conectar Percy basta con escribir un plugin con un proveedor de telemetría.
+
+## Paso 8 · 2026-10-25 — Control de misión con datos reales
+- **Prompt:** "Arma un control de misión dentro de la simulación con el patrón de Open MCT y 4 datos reales de Percy: distancia, altura del terreno e inclinación (M20_waypoints.json de la NASA) y el tiempo de luz Tierra-Marte en vivo. Con gráfica de toda la misión, una frase simple y la tecla T para ocultarlo. Amplía npm run check."
+- **Cambios:** nuevo `src/mision.js` con proveedores y metadatos, gráficas en canvas y frases. Nuevo `vite.config.js` con el proxy `/nasa`. `check.mjs` ahora verifica los 4 datos y la tecla T. La telemetría muestra el sol real.
+- **Problemas y soluciones:**
+  - El JSON de la NASA no trae CORS → se usa el proxy que ya incluye Vite, sin instalar nada. Hubo que reiniciar el servidor para que tomara la configuración.
+  - Algunos manejos traen la distancia total reiniciada → se usa el máximo acumulado.
+  - El check medía la opacidad en plena animación → ahora revisa la clase `oculto`.
+- **Resultado:** 45.22 km recorridos, −1937 m de altura, 9.6° de inclinación (máximo 20.7°) y 12.3 min de luz (hoy, en vivo). ✅ 0 errores.
+- **Aprendizaje:** el tiempo de luz se calcula con las órbitas de los dos planetas (ecuación de Kepler) y la distancia dividida por la velocidad de la luz. Su gráfica sube y baja cada ~26 meses, que es lo que tardan la Tierra y Marte en volver a acercarse.
+
+## Paso 9 · 2026-10-25 — Ruedas con física real
+- **Prompt:** "Las ruedas de Perseverance no están girando, súmale física real para que se muevan y también que giren cuando voy a la izquierda o derecha."
+- **Cambios:**
+  - `separarRuedas()` en `src/rover.js` divide la pieza `Wheels_objs` en 6 ruedas: agrupa los triángulos por cercanía (k-medias). Cada rueda queda con un pivote de dirección y otro de giro.
+  - `moverRuedas()` en `main.js` aplica la cinemática.
+  - `check.mjs` revisa las 6 ruedas y guarda `check-ruedas.png`.
+- **Física:** velocidad de cada rueda = v·adelante + ω × posición. La rueda apunta en esa dirección (solo las 4 de las esquinas, como el Perseverance real) y rueda distancia/radio.
+- **Rondas de `npm run check`:** (1) error: `Wheels_objs` era un grupo de mallas (una por material) y no una sola malla; (2) ✅ al doblar a la izquierda, las ruedas de adentro rodaron 8 rad y las de afuera 19 rad, las delanteras y traseras se orientaron en sentidos opuestos y las del medio quedaron rectas.
+- **Aprendizaje:** al doblar, las ruedas de afuera recorren más camino que las de adentro, y por eso deben girar más rápido. Es el mismo motivo por el que los autos tienen diferencial.
+
+## Paso 10 · 2026-10-25 — Las cámaras de Percy toman fotos reales
+- **Prompt:** "Que las cámaras de Percy tomen fotos reales de Marte: 4 puntos que brillan (Mastcam_Z_cams, NavCams, hazcams_front, WATSON), obturador, flash y revelado. Clic para ampliar, Esc para volver y flechas para más fotos. Fotos de la API raw_images, las más impresionantes y a color: descárgalas y míralas antes de escoger. Amplía npm run check."
+- **Selección de fotos:** se pidieron las últimas 300 fotos de cada instrumento (MCZ_LEFT, NAVCAM_LEFT, FRONT_HAZCAM_LEFT_A, SHERLOC_WATSON) y se dejaron solo las de tamaño completo (y, de Mastcam-Z, las del filtro RGB). Se descargaron unas 990 miniaturas, se puntuaron por saturación, tono rojizo y textura, y se miraron en hojas de contacto y luego en grande. Quedaron 19 (`src/fotos-catalogo.json`).
+- **Cambios:** nuevo `src/fotos.js` con los puntos que brillan, la etiqueta, el obturador, el flash, el sonido, el revelado, la tarjeta, la lupa y el teclado. `rover.js` ahora devuelve el `modelo`. `check.mjs` hace clic en las 4 cámaras.
+- **Problemas y soluciones:**
+  - Mastcam-Z y NavCam están juntas en el mástil → los puntos se separaron y ahora gana el más cercano al mouse en la pantalla.
+  - El check fallaba porque su clic inicial de foco caía sobre NavCam y abría una foto que tapaba los demás puntos → el clic de foco ahora va al suelo.
+  - La tarjeta no cabía en pantallas bajas → su tamaño también depende de la altura.
+- **Resultado:** ✅ las 4 cámaras abren una foto real (Mastcam-Z sol 2019 "hoy", NavCam y Hazcam sol 2009, WATSON sol 2014), → cambia de foto, Esc cierra y 0 errores.
+- **Aprendizaje:** las flechas también manejan el rover. Para que con una foto abierta solo cambien de foto, se escucha el teclado en fase de captura y se detiene el evento (`stopImmediatePropagation`).
