@@ -77,3 +77,4 @@ repetir la clase paso a paso.
   en español, pensado para que principiantes lo entiendan.
 - Prioriza que algo funcione y se vea en pantalla rápido: estamos en clase y el tiempo cuenta.
 - Explica en español y de forma sencilla cada paso.
+- Después de cada mejora o cambio de plan, actualiza `plan.md` (fase actual, checklist e historial).
